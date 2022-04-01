@@ -4,7 +4,11 @@ let f;
 let engineSpecs = {
   stroke:4,
   cylinders:6,
-  k:2.2
+  k:2.5,
+  soundCurve:{
+    i:9,
+    j:1
+  }
 }
 
 let soundTable = {
@@ -16,6 +20,7 @@ let soundTable = {
   5:[0.5,'sine',70],
   6:[0.00125,'sawtooth',220],
   7:[0.2,'sine',160],
+  8:[0.6,'sine', 40]
 };
 
 window.addEventListener('DOMContentLoaded', (event) => {
