@@ -1,7 +1,11 @@
-let f = 0;
-let stroke = 4;
-let cylinders = 6;
-let k = 2.2;
+let engine;
+let f;
+
+let engineSpecs = {
+  stroke:4,
+  cylinders:6,
+  k:2.2
+}
 
 let soundTable = {
   0:[1,'sine',0],
@@ -18,53 +22,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
   console.log('DOM fully loaded and parsed');
 
   var start = document.getElementById("start"),
-      stop = document.getElementById("stop"),
-      intervalId;
+      stop = document.getElementById("stop");
+  var intervalId;
 
   var oscs = {};
   
   var slider = document.getElementById("myRange");
   var output = document.getElementById("demo");
-  f = (slider.value)/((stroke/2)*(1/cylinders)*60*k);
-  output.innerHTML = slider.value+' Freq: '+f;
+
+  engine = new Engine(engineSpecs, soundTable, 0.3);
+  output.innerHTML = slider.value+' Freq: '+engine.f;
 
   slider.oninput = function() {
-    f = (this.value)/((stroke/2)*(1/cylinders)*60*k);
-    output.innerHTML = this.value +' Freq: '+f;
+    engine.updateRPM(this.value);
+    output.innerHTML = this.value +' Freq: '+engine.f;
   }
 
-  var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
   start.addEventListener("click", function(e){
-    
-    for (const [key, v] of Object.entries(soundTable)) {
-      let gain = audioCtx.createGain();
-      let osc = audioCtx.createOscillator();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type = v[1];
-      osc.frequency.value = f+v[2];
-      gain.gain.value = 0.3*v[0];
-      oscs[key] = osc;
-    }
-    
-    for (const [key, v] of Object.entries(soundTable)) {
-      
-      oscs[key].start();
-    }
-    
-    intervalId = setInterval(function(){
-        for (const [key, v] of Object.entries(soundTable)) {
-          oscs[key].frequency.value = f+v[2];
-        }
-      }, 40);
+    engine.playSound();
   });
 
   stop.addEventListener("click", function(e){
-    for (const [key, v] of Object.entries(soundTable)) {
-      oscs[key].stop();
-      oscs[key] = null;
-    }
-    clearInterval(intervalId);
+    engine.stopSound();
   });
 });
